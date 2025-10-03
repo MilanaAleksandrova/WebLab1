@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторная работа #1</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            font-family: cursive;
+            font-size: 18px;
+            color: #2c3e50;
+            background-color: #ecf0f1;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #bdc3c7;
+        }
+
+        .container .input-section {
+            background-color: #fff;
+        }
+
+        .container {
+            display: table;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            border-spacing: 20px;
+        }
+
+        .input-section {
+            display: table-cell;
+            width: 40%;
+            padding: 20px;
+            vertical-align: top;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .results-section {
+            display: table-cell;
+            width: 60%;
+            padding: 20px;
+            vertical-align: top;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+            padding: 8px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .coord-input {
+            margin: 15px 0;
+            padding: 10px;
+        }
+
+        .radius-select {
+            margin: 20px 0;
+            padding: 10px;
+        }
+
+        .x-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 0 10px;
+            margin-left: 0px;
+        }
+
+        .x-btn {
+            padding: 8px 12px;
+            border: 1px solid #3498db;
+            background-color: #ecf0f1;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .x-btn:hover {
+            background-color: #d6dbdf;
+        }
+
+        .x-btn.selected {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .submit-btn {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #219a52;
+        }
+
+        #graph {
+            border: 2px solid #34495e;
+            margin-bottom: 20px;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .result-table th,
+        .result-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .result-table th {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #ecf0f1;
+        }
+
+        .error {
+            color: #e74c3c;
+            background-color: #fadbd8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin-top: 30px;
+        }
+
+        #current-time {
+            font-style: italic;
+            color: #7f8c8d;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .header::before {
+            content: "★ ";
+            color: #e74c3c;
+        }
+
+        .form-group:first-child label {
+            margin-left: 8px;
+        }
+
+        .result-table tr:hover {
+            background-color: #d5dbdb;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .miss {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .coord-input input,
+        .radius-select select {
+            width: calc(100% - 15px);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    ФИО: Александрова Милана Сергеевна | Группа: P3214 | Вариант: 399913
+</div>
+
+<div class="container">
+
+    <div class="input-section">
+        <form id="point-form">
+            <div class="form-group">
+                <label>Координата X:</label>
+                <div class="x-buttons" id="x-buttons">
+
+                </div>
+                <input type="hidden" id="x-value" name="x" required>
+            </div>
+
+            <div class="form-group coord-input">
+                <label for="y">Координата Y:</label>
+                <input type="text" id="y" name="y" placeholder="Введите Y от -3 до 5" required>
+            </div>
+
+            <div class="form-group radius-select">
+                <label for="r">Радиус R:</label>
+                <select id="r" name="r" required>
+                    <option value="">Выберите R</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Проверить точку</button>
+        </form>
+
+        <div id="error-message" class="error"></div>
+    </div>
+
+    <div class="results-section">
+        <canvas id="graph" width="400" height="400"></canvas>
+
+        <div id="current-time"></div>
+
+        <table class="result-table">
+            <thead>
+            <tr>
+                <th>X</th>
+                <th>Y</th>
+                <th>R</th>
+                <th>Текущее время</th>
+                <th>Время выполнения (мкс)</th>
+                <th>Результат</th>
+            </tr>
+            </thead>
+            <tbody id="results-body">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    Лабораторная работа #1 • Веб-программирование • 2025
+</div>
+
+<script>
+    function initXButtons() {
+        const xButtons = document.getElementById('x-buttons');
+        const xValues = [-5, -4, -3, -2, -1, 0, 1, 2, 3];
+
+        xValues.forEach(value => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'x-btn';
+            button.textContent = value;
+            button.onclick = function() {
+                document.querySelectorAll('.x-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                document.getElementById('x-value').value = value;
+            };
+            xButtons.appendChild(button);
+        });
+    }
+
+    function validateForm(x, y, r) {
+        const errorDiv = document.getElementById('error-message');
+
+        if (x === '') {
+            showError('Выберите координату X');
+            return false;
+        }
+
+        const yNum = parseFloat(y.replace(',', '.'));
+        if (isNaN(yNum) || yNum <= -3 || yNum >= 5) {
+            showError('Координата Y должна быть числом в диапазоне от -3 до 5');
+            return false;
+        }
+
+        if (r === '') {
+            showError('Выберите радиус R');
+            return false;
+        }
+
+        hideError();
+        return true;
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function hideError() {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.style.display = 'none';
+    }
+
+    function drawGraph() {
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const scale = 110;
+
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+
+        ctx.fillRect(centerX, centerY - scale, scale, scale);
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX - scale/2, centerY);
+        ctx.lineTo(centerX, centerY - scale);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, scale, -Math.PI, -Math.PI * 1.5, true);
+        ctx.lineTo(centerX, centerY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(50, centerY);
+        ctx.lineTo(width - 50, centerY);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, 50);
+        ctx.lineTo(centerX, height - 50);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#000';
+
+        ctx.beginPath();
+        ctx.moveTo(width - 50, centerY - 5);
+        ctx.lineTo(width - 40, centerY);
+        ctx.lineTo(width - 50, centerY + 5);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX - 5, 50);
+        ctx.lineTo(centerX, 40);
+        ctx.lineTo(centerX + 5, 50);
+        ctx.fill();
+
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#000';
+        ctx.fillText('X', width - 30, centerY - 10);
+        ctx.fillText('Y', centerX + 10, 30);
+
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#2c3e50';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const marksX = [-scale, -scale/2, scale/2, scale];
+        const labelsX = ['-R', '-R/2', 'R/2', 'R'];
+
+        marksX.forEach((mark, index) => {
+            ctx.beginPath();
+            ctx.moveTo(centerX + mark, centerY - 5);
+            ctx.lineTo(centerX + mark, centerY + 5);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillText(labelsX[index], centerX + mark, centerY + 20);
+        });
+
+        const marksY = [-scale, -scale/2, scale/2, scale];
+        const labelsY = ['-R', '-R/2', 'R/2', 'R'];
+
+        marksY.forEach((mark, index) => {
+            ctx.beginPath();
+            ctx.moveTo(centerX - 5, centerY - mark);
+            ctx.lineTo(centerX + 5, centerY - mark);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillText(labelsY[index], centerX - 20, centerY - mark);
+        });
+    }
+
+    async function submitForm(formData) {
+        try {
+            const response = await fetch('/fcgi-bin/WebLab1.jar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.error) {
+                showError(result.message);
+            } else {
+                updateResultsTable(result.results);
+            }
+
+        } catch (error) {
+            showError('Ошибка при отправке данных: ' + error.message);
+        }
+    }
+
+    function updateResultsTable(results) {
+        const tbody = document.getElementById('results-body');
+        tbody.innerHTML = '';
+
+        results.forEach(result => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${result.x}</td>
+                <td>${result.y}</td>
+                <td>${result.r}</td>
+                <td>${result.currentTime}</td>
+                <td>${result.executionTime}</td>
+                <td class="${result.hit ? 'highlight' : 'miss'}">
+                    ${result.hit ? 'Попадание' : 'Промах'}
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateCurrentTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent =
+            'Текущее время: ' + now.toLocaleString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initXButtons();
+        drawGraph();
+        updateCurrentTime();
+
+        setInterval(updateCurrentTime, 1000);
+
+        document.getElementById('point-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const x = document.getElementById('x-value').value;
+            const y = document.getElementById('y').value;
+            const r = document.getElementById('r').value;
+
+            if (validateForm(x, y, r)) {
+                const formData = {
+                    x: x,
+                    y: y.replace(',', '.'),
+                    r: r
+                };
+                submitForm(formData);
+            }
+        });
+
+        document.getElementById('y').addEventListener('input', function(e) {
+            const value = e.target.value.replace(',', '.');
+            if (value && !isNaN(value)) {
+                const numValue = parseFloat(value);
+                if (numValue <= -3 || numValue >= 5) {
+                    e.target.style.borderColor = '#e74c3c';
+                } else {
+                    e.target.style.borderColor = '#27ae60';
+                }
+            } else {
+                e.target.style.borderColor = '#bdc3c7';
+            }
+        });
+    });
+</script>
+</body>
+</html>
