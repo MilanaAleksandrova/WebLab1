@@ -23,6 +23,13 @@ public class Main {
             
             %s
             """;
+    private static final String HTTP_METHOD_NOT_ALLOWED = """
+            HTTP/1.1 405 Method Not Allowed
+            Content-Type: application/json
+            Content-Length: %d
+            
+            %s
+            """;
 
     private static final List<Result> results = new CopyOnWriteArrayList<>();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -31,6 +38,21 @@ public class Main {
         var fcgi = new FCGIInterface();
         while (fcgi.FCGIaccept() >= 0) {
             try {
+                String requestMethod = System.getProperty("REQUEST_METHOD");
+                if (requestMethod == null || !requestMethod.equals("POST")) {
+                    String json = String.format("""
+                        {
+                            "error": true,
+                            "message": "Method not allowed. Only POST requests are supported.",
+                            "timestamp": "%s"
+                        }
+                        """, LocalDateTime.now().format(formatter));
+                    String response = String.format(HTTP_METHOD_NOT_ALLOWED,
+                            json.getBytes(StandardCharsets.UTF_8).length, json);
+                    System.out.print(response);
+                    continue;
+                }
+
                 String contentLengthStr = System.getProperty("CONTENT_LENGTH");
                 if (contentLengthStr == null || contentLengthStr.isEmpty()) {
                     throw new ValidationException("Missing content length");
