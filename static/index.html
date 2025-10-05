@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лабораторная работа #1</title>
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -28,34 +27,22 @@
             border-bottom: 2px solid #bdc3c7;
         }
 
-        .container .input-section {
-            background-color: #fff;
-        }
-
         .container {
-            display: table;
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            border-spacing: 20px;
         }
 
         .input-section {
-            display: table-cell;
-            width: 40%;
             padding: 20px;
-            vertical-align: top;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .results-section {
-            display: table-cell;
-            width: 60%;
             padding: 20px;
-            vertical-align: top;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -215,74 +202,101 @@
             width: calc(100% - 15px);
         }
 
+        table.layout {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 20px;
+        }
+
+        table.layout td {
+            vertical-align: top;
+        }
+
+        table.layout td.input-cell {
+            width: 40%;
+        }
+
+        table.layout td.results-cell {
+            width: 60%;
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    ФИО: Александрова Милана Сергеевна | Группа: P3214 | Вариант: 399913
-</div>
-
-<div class="container">
-
-    <div class="input-section">
-        <form id="point-form">
-            <div class="form-group">
-                <label>Координата X:</label>
-                <div class="x-buttons" id="x-buttons">
-
-                </div>
-                <input type="hidden" id="x-value" name="x" required>
+<table class="layout">
+    <tr>
+        <td colspan="2">
+            <div class="header">
+                ФИО: Александрова Милана Сергеевна | Группа: P3214 | Вариант: 399913
             </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="input-cell">
+            <div class="input-section">
+                <form id="point-form">
+                    <div class="form-group">
+                        <label>Координата X:</label>
+                        <div class="x-buttons" id="x-buttons">
 
-            <div class="form-group coord-input">
-                <label for="y">Координата Y:</label>
-                <input type="text" id="y" name="y" placeholder="Введите Y от -3 до 5" required>
+                        </div>
+                        <input type="hidden" id="x-value" name="x" required>
+                    </div>
+
+                    <div class="form-group coord-input">
+                        <label for="y">Координата Y:</label>
+                        <input type="text" id="y" name="y" placeholder="Введите Y от -3 до 5" required>
+                    </div>
+
+                    <div class="form-group radius-select">
+                        <label for="r">Радиус R:</label>
+                        <select id="r" name="r" required>
+                            <option value="">Выберите R</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Проверить точку</button>
+                </form>
+
+                <div id="error-message" class="error"></div>
             </div>
+        </td>
+        <td class="results-cell">
+            <div class="results-section">
+                <canvas id="graph" width="400" height="400"></canvas>
 
-            <div class="form-group radius-select">
-                <label for="r">Радиус R:</label>
-                <select id="r" name="r" required>
-                    <option value="">Выберите R</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
+                <div id="current-time"></div>
+
+                <table class="result-table">
+                    <thead>
+                    <tr>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>R</th>
+                        <th>Текущее время</th>
+                        <th>Время выполнения (мкс)</th>
+                        <th>Результат</th>
+                    </tr>
+                    </thead>
+                    <tbody id="results-body">
+                    </tbody>
+                </table>
             </div>
-
-            <button type="submit" class="submit-btn">Проверить точку</button>
-        </form>
-
-        <div id="error-message" class="error"></div>
-    </div>
-
-    <div class="results-section">
-        <canvas id="graph" width="400" height="400"></canvas>
-
-        <div id="current-time"></div>
-
-        <table class="result-table">
-            <thead>
-            <tr>
-                <th>X</th>
-                <th>Y</th>
-                <th>R</th>
-                <th>Текущее время</th>
-                <th>Время выполнения (мкс)</th>
-                <th>Результат</th>
-            </tr>
-            </thead>
-            <tbody id="results-body">
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="footer">
-    Лабораторная работа #1 • Веб-программирование • 2025
-</div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="footer">
+                Лабораторная работа #1 • Веб-программирование • 2025
+            </div>
+        </td>
+    </tr>
+</table>
 
 <script>
     function initXButtons() {
