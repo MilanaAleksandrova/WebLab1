@@ -314,7 +314,7 @@
         }
 
         const yNum = parseFloat(y.replace(',', '.'));
-        if (isNaN(yNum) || yNum <= -3 || yNum >= 5) {
+        if (isNaN(yNum) || yNum < -3 || yNum > 5) {
             showError('Координата Y должна быть числом в диапазоне от -3 до 5');
             return false;
         }
@@ -516,10 +516,8 @@
             const value = e.target.value.replace(',', '.');
             if (value && !isNaN(value)) {
                 const numValue = parseFloat(value);
-                if (numValue <= -3 || numValue >= 5) {
+                if (numValue < -3 || numValue > 5) {
                     e.target.style.borderColor = '#e74c3c';
-                } else {
-                    e.target.style.borderColor = '#27ae60';
                 }
             } else {
                 e.target.style.borderColor = '#bdc3c7';
