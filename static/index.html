@@ -1,63 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Лабораторная работа #1</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        html, body { height: 100%; }
         body {
             font-family: Arial, sans-serif;
             color: #333;
-            background-color: #f5f5f5;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         .header {
             font-family: cursive;
             font-size: 18px;
             color: #2c3e50;
-            background-color: #ecf0f1;
+            background: #ecf0f1;
             padding: 15px;
             text-align: center;
             border-bottom: 2px solid #bdc3c7;
         }
+        .header::before { content: "★ "; color: #e74c3c; }
 
-        .container {
+        table.layout {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            border-collapse: separate;
+            border-spacing: 20px;
         }
+        table.layout td { vertical-align: top; }
+        table.layout td.input-cell { width: 40%; }
+        table.layout td.results-cell { width: 60%; }
 
-        .input-section {
+        .input-section, .results-section {
             padding: 20px;
-            background-color: #fff;
+            background: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .results-section {
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            padding: 8px;
             font-weight: bold;
             color: #34495e;
-            padding: 8px;
         }
 
         input[type="text"], select {
@@ -66,163 +56,78 @@
             border: 1px solid #bdc3c7;
             border-radius: 4px;
             margin-bottom: 10px;
+            box-sizing: border-box;
         }
 
-        .coord-input {
-            margin: 15px 0;
-            padding: 10px;
-        }
-
-        .radius-select {
-            margin: 20px 0;
-            padding: 10px;
-        }
-
-        .x-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 0 10px;
-            margin-left: 0px;
-        }
-
-        .x-btn {
+        #x-buttons .x-btn {
             padding: 8px 12px;
             border: 1px solid #3498db;
-            background-color: #ecf0f1;
+            background: #ecf0f1;
             cursor: pointer;
             border-radius: 4px;
-            transition: all 0.3s ease;
+            transition: background 0.15s ease;
+            margin: 0 4px 6px 0;
         }
-
-        .x-btn:hover {
-            background-color: #d6dbdf;
-        }
-
-        .x-btn.selected {
-            background-color: #3498db;
-            color: white;
-        }
+        #x-buttons .x-btn:hover { background: #d6dbdf; }
+        #x-buttons .x-btn.selected { background: #3498db; color: #fff; }
 
         .submit-btn {
-            background-color: #27ae60;
-            color: white;
+            background: #2ecc71;
+            color: #fff;
             padding: 12px 24px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin: 20px 0;
             width: 100%;
-            transition: background-color 0.3s ease;
         }
-
-        .submit-btn:hover {
-            background-color: #219a52;
-        }
+        #point-form .submit-btn { background: #27ae60; }
 
         #graph {
             border: 2px solid #34495e;
-            margin-bottom: 20px;
             display: block;
             margin: 0 auto 20px auto;
+            background: #ffffff;
         }
 
-        .result-table {
+        .results-section > table.result-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
-        .result-table th,
-        .result-table td {
+        .result-table th, .result-table td {
             border: 1px solid #bdc3c7;
             padding: 8px;
             text-align: center;
         }
+        .result-table th { background: #34495e; color: #fff; }
+        .result-table tr:nth-child(even) { background: #ecf0f1; }
 
-        .result-table th {
-            background-color: #34495e;
-            color: white;
-        }
+        .highlight { font-weight: bold; color: #27ae60; }
+        .miss { font-weight: bold; color: #e74c3c; }
 
-        .result-table tr:nth-child(even) {
-            background-color: #ecf0f1;
-        }
-
-        .error {
+        #error-message {
             color: #e74c3c;
-            background-color: #fadbd8;
+            background: #fadbd8;
             padding: 10px;
             border-radius: 4px;
-            margin: 10px 0;
+            margin-top: 10px;
             display: none;
         }
 
         .footer {
             text-align: center;
             padding: 20px;
-            background-color: #2c3e50;
+            background: #2c3e50;
             color: #ecf0f1;
             margin-top: 30px;
         }
 
-        #current-time {
-            font-style: italic;
-            color: #7f8c8d;
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .header::before {
-            content: "★ ";
-            color: #e74c3c;
-        }
-
-        .form-group:first-child label {
-            margin-left: 8px;
-        }
-
-        .result-table tr:hover {
-            background-color: #d5dbdb;
-        }
-
-        .highlight {
-            font-weight: bold;
-            color: #27ae60;
-        }
-
-        .miss {
-            font-weight: bold;
-            color: #e74c3c;
-        }
-
-        .coord-input input,
-        .radius-select select {
-            width: calc(100% - 15px);
-        }
-
-        table.layout {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 20px;
-        }
-
-        table.layout td {
-            vertical-align: top;
-        }
-
-        table.layout td.input-cell {
-            width: 40%;
-        }
-
-        table.layout td.results-cell {
-            width: 60%;
-        }
+        button.x-btn { font: inherit; }
+        button[type="submit"] { font: inherit; }
     </style>
 </head>
 <body>
-
 <table class="layout">
     <tr>
         <td colspan="2">
@@ -231,24 +136,23 @@
             </div>
         </td>
     </tr>
+
     <tr>
         <td class="input-cell">
             <div class="input-section">
-                <form id="point-form">
+                <form id="point-form" method="post" action="/fcgi-bin/WebLab1.jar">
                     <div class="form-group">
                         <label>Координата X:</label>
-                        <div class="x-buttons" id="x-buttons">
-
-                        </div>
+                        <div id="x-buttons" class="x-buttons"></div>
                         <input type="hidden" id="x-value" name="x" required>
                     </div>
 
-                    <div class="form-group coord-input">
+                    <div class="form-group">
                         <label for="y">Координата Y:</label>
-                        <input type="text" id="y" name="y" placeholder="Введите Y от -3 до 5" required>
+                        <input type="text" id="y" name="y" placeholder="Введите Y от -3 до 5" required inputmode="decimal" pattern="^-?\d+([.,]\d+)?$">
                     </div>
 
-                    <div class="form-group radius-select">
+                    <div class="form-group">
                         <label for="r">Радиус R:</label>
                         <select id="r" name="r" required>
                             <option value="">Выберите R</option>
@@ -263,9 +167,10 @@
                     <button type="submit" class="submit-btn">Проверить точку</button>
                 </form>
 
-                <div id="error-message" class="error"></div>
+                <div id="error-message"></div>
             </div>
         </td>
+
         <td class="results-cell">
             <div class="results-section">
                 <canvas id="graph" width="400" height="400"></canvas>
@@ -283,17 +188,15 @@
                         <th>Результат</th>
                     </tr>
                     </thead>
-                    <tbody id="results-body">
-                    </tbody>
+                    <tbody id="results-body"></tbody>
                 </table>
             </div>
         </td>
     </tr>
+
     <tr>
         <td colspan="2">
-            <div class="footer">
-                Лабораторная работа #1 • Веб-программирование • 2025
-            </div>
+            <div class="footer">Лабораторная работа #1 • Веб-программирование • 2025</div>
         </td>
     </tr>
 </table>
@@ -309,9 +212,7 @@
             button.className = 'x-btn';
             button.textContent = value;
             button.onclick = function() {
-                document.querySelectorAll('.x-btn').forEach(btn => {
-                    btn.classList.remove('selected');
-                });
+                document.querySelectorAll('#x-buttons .x-btn').forEach(btn => btn.classList.remove('selected'));
                 this.classList.add('selected');
                 document.getElementById('x-value').value = value;
             };
@@ -320,24 +221,19 @@
     }
 
     function validateForm(x, y, r) {
-        const errorDiv = document.getElementById('error-message');
-
         if (x === '') {
             showError('Выберите координату X');
             return false;
         }
-
         const yNum = parseFloat(y.replace(',', '.'));
         if (isNaN(yNum) || yNum < -3 || yNum > 5) {
             showError('Координата Y должна быть числом в диапазоне от -3 до 5');
             return false;
         }
-
         if (r === '') {
             showError('Выберите радиус R');
             return false;
         }
-
         hideError();
         return true;
     }
@@ -347,7 +243,6 @@
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
     }
-
     function hideError() {
         const errorDiv = document.getElementById('error-message');
         errorDiv.style.display = 'none';
@@ -363,9 +258,7 @@
         const scale = 110;
 
         ctx.clearRect(0, 0, width, height);
-
         ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
-
         ctx.fillRect(centerX, centerY - scale, scale, scale);
 
         ctx.beginPath();
@@ -397,7 +290,6 @@
         ctx.stroke();
 
         ctx.fillStyle = '#000';
-
         ctx.beginPath();
         ctx.moveTo(width - 50, centerY - 5);
         ctx.lineTo(width - 40, centerY);
@@ -422,7 +314,6 @@
 
         const marksX = [-scale, -scale/2, scale/2, scale];
         const labelsX = ['-R', '-R/2', 'R/2', 'R'];
-
         marksX.forEach((mark, index) => {
             ctx.beginPath();
             ctx.moveTo(centerX + mark, centerY - 5);
@@ -435,7 +326,6 @@
 
         const marksY = [-scale, -scale/2, scale/2, scale];
         const labelsY = ['-R', '-R/2', 'R/2', 'R'];
-
         marksY.forEach((mark, index) => {
             ctx.beginPath();
             ctx.moveTo(centerX - 5, centerY - mark);
@@ -451,24 +341,13 @@
         try {
             const response = await fetch('/fcgi-bin/WebLab1.jar', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams(formData)
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
-
-            if (result.error) {
-                showError(result.message);
-            } else {
-                updateResultsTable(result.results);
-            }
-
+            if (result.error) showError(result.message);
+            else updateResultsTable(result.results);
         } catch (error) {
             showError('Ошибка при отправке данных: ' + error.message);
         }
@@ -477,51 +356,39 @@
     function updateResultsTable(results) {
         const tbody = document.getElementById('results-body');
         tbody.innerHTML = '';
-
         results.forEach(result => {
             const row = document.createElement('tr');
-
             row.innerHTML = `
-                <td>${result.x}</td>
-                <td>${result.y}</td>
-                <td>${result.r}</td>
-                <td>${result.currentTime}</td>
-                <td>${result.executionTime}</td>
-                <td class="${result.hit ? 'highlight' : 'miss'}">
-                    ${result.hit ? 'Попадание' : 'Промах'}
-                </td>
-            `;
-
+          <td>${result.x}</td>
+          <td>${result.y}</td>
+          <td>${result.r}</td>
+          <td>${result.currentTime}</td>
+          <td>${result.executionTime}</td>
+          <td class="${result.hit ? 'highlight' : 'miss'}">
+            ${result.hit ? 'Попадание' : 'Промах'}
+          </td>`;
             tbody.appendChild(row);
         });
     }
 
     function updateCurrentTime() {
         const now = new Date();
-        document.getElementById('current-time').textContent =
-            'Текущее время: ' + now.toLocaleString();
+        document.getElementById('current-time').textContent = 'Текущее время: ' + now.toLocaleString();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         initXButtons();
         drawGraph();
         updateCurrentTime();
-
         setInterval(updateCurrentTime, 1000);
 
         document.getElementById('point-form').addEventListener('submit', function(e) {
             e.preventDefault();
-
             const x = document.getElementById('x-value').value;
             const y = document.getElementById('y').value;
             const r = document.getElementById('r').value;
-
             if (validateForm(x, y, r)) {
-                const formData = {
-                    x: x,
-                    y: y.replace(',', '.'),
-                    r: r
-                };
+                const formData = { x: x, y: y.replace(',', '.'), r: r };
                 submitForm(formData);
             }
         });
@@ -530,9 +397,7 @@
             const value = e.target.value.replace(',', '.');
             if (value && !isNaN(value)) {
                 const numValue = parseFloat(value);
-                if (numValue < -3 || numValue > 5) {
-                    e.target.style.borderColor = '#e74c3c';
-                }
+                e.target.style.borderColor = (numValue < -3 || numValue > 5) ? '#e74c3c' : '#bdc3c7';
             } else {
                 e.target.style.borderColor = '#bdc3c7';
             }
