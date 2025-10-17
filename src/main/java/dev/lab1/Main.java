@@ -3,6 +3,7 @@ package dev.lab1;
 import com.fastcgi.FCGIInterface;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,29 +13,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.math.BigDecimal;
 
 public class Main {
-    //TODO: To other data-class
-    private static final String HTTP_RESPONSE = """
-            HTTP/1.1 200 OK
-            Content-Type: application/json
-            Content-Length: %d
-            
-            %s
-            """;
-    private static final String HTTP_ERROR = """
-            HTTP/1.1 400 Bad Request
-            Content-Type: application/json
-            Content-Length: %d
-            
-            %s
-            """;
-    private static final String HTTP_METHOD_NOT_ALLOWED = """ 
-            HTTP/1.1 405 Method Not Allowed
-            Content-Type: application/json
-            Content-Length: %d
-            
-            %s
-            """;
-
     private static final List<Point> table = new CopyOnWriteArrayList<>();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Gson gson = new Gson();
@@ -45,16 +23,12 @@ public class Main {
             try {
                 String requestMethod = System.getProperty("REQUEST_METHOD");
                 if (requestMethod == null || !requestMethod.equals("POST")) {
-                    String json = String.format("""
-                        {
-                            "error": true,
-                            "message": "Method not allowed. Only POST requests are supported.",
-                            "timestamp": "%s"
-                        }
-                        """, LocalDateTime.now().format(formatter));
-                    String response = String.format(HTTP_METHOD_NOT_ALLOWED,
-                            json.getBytes(StandardCharsets.UTF_8).length, json);
-                    System.out.print(response);
+                    String json = gson.toJson(Map.of(
+                            "error", true,
+                            "message", "Method not allowed. Only POST requests are supported.",
+                            "timestamp", LocalDateTime.now().format(formatter)
+                    ));
+                    sendJsonResponse(json, 405);
                     continue;
                 }
 
@@ -85,46 +59,60 @@ public class Main {
                         currentTime, executionTime, result);
                 table.add(0, pointObj);
 
-                String json = buildResponseJson();
-                String response = String.format(HTTP_RESPONSE,
-                        json.getBytes(StandardCharsets.UTF_8).length, json);
-                System.out.print(response);
+                String json = gson.toJson(Map.of("results", table));
+                sendJsonResponse(json, 200);
 
             } catch (ValidationException e) {
-                String json = String.format("""
-                    {
-                        "error": true,
-                        "message": "%s",
-                        "timestamp": "%s"
-                    }
-                    """, e.getMessage(), LocalDateTime.now().format(formatter));
-                String response = String.format(HTTP_ERROR,
-                        json.getBytes(StandardCharsets.UTF_8).length, json);
-                System.out.print(response);
+                String json = gson.toJson(Map.of(
+                        "error", true,
+                        "message", e.getMessage(),
+                        "timestamp", LocalDateTime.now().format(formatter)
+                ));
+                sendJsonResponse(json, 400);
             } catch (Exception e) {
-                String json = String.format("""
-                    {
-                        "error": true,
-                        "message": "Internal server error: %s",
-                        "timestamp": "%s"
-                    }
-                    """, e.getMessage(), LocalDateTime.now().format(formatter));
-                String response = String.format(HTTP_ERROR,
-                        json.getBytes(StandardCharsets.UTF_8).length, json);
-                System.out.print(response);
+                String json = gson.toJson(Map.of(
+                        "error", true,
+                        "message", "Internal server error: " + e.getMessage(),
+                        "timestamp", LocalDateTime.now().format(formatter)
+                ));
+                sendJsonResponse(json, 500);
             }
         }
     }
 
-    private static String buildResponseJson() {
-        Map<String, Object> payload = Map.of("results", table);
-        return gson.toJson(payload);
+    private static void sendJsonResponse(String json, int statusCode) {
+        String statusText;
+        switch (statusCode) {
+            case 200 -> statusText = "OK";
+            case 400 -> statusText = "Bad Request";
+            case 405 -> statusText = "Method Not Allowed";
+            default -> statusText = "Internal Server Error";
+        }
+
+        String headers = String.format(
+                "HTTP/1.1 %d %s\r\n" +
+                        "Content-Type: application/json\r\n" +
+                        "Content-Length: %d\r\n" +
+                        "\r\n",
+                statusCode,
+                statusText,
+                json.getBytes(StandardCharsets.UTF_8).length
+        );
+
+        try {
+            System.out.write(headers.getBytes(StandardCharsets.UTF_8));
+            System.out.write(json.getBytes(StandardCharsets.UTF_8));
+            System.out.flush();
+        } catch (IOException e) {
+            System.err.println("Error when sending the response: " + e.getMessage());
+        }
+
     }
 
     private static boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
         BigDecimal zero = BigDecimal.ZERO;
 
-        if (x.compareTo(zero) > 0 && y.compareTo(zero) > 0) {
+        if (x.compareTo(zero) >= 0 && y.compareTo(zero) >= 0) {
             return x.compareTo(r) <= 0 && y.compareTo(r) <= 0;
         }
 
