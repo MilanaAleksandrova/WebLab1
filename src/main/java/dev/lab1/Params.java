@@ -41,7 +41,7 @@ class Params {
     }
 
     private static BigDecimal parseBigDecimal(String value) {
-        return new BigDecimal(value.replace(',', '.'));
+        return new BigDecimal(value.trim().replace(',', '.'));
     }
 
     private static void validate(BigDecimal val, int min, int max) throws ValidationException {
