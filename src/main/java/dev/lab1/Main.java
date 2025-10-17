@@ -7,8 +7,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.math.BigDecimal;
 
 public class Main {
+    //TODO: To other data-class
     private static final String HTTP_RESPONSE = """
             HTTP/1.1 200 OK
             Content-Type: application/json
@@ -23,7 +25,7 @@ public class Main {
             
             %s
             """;
-    private static final String HTTP_METHOD_NOT_ALLOWED = """
+    private static final String HTTP_METHOD_NOT_ALLOWED = """ 
             HTTP/1.1 405 Method Not Allowed
             Content-Type: application/json
             Content-Length: %d
@@ -31,7 +33,7 @@ public class Main {
             %s
             """;
 
-    private static final List<Result> results = new CopyOnWriteArrayList<>();
+    private static final List<Point> table = new CopyOnWriteArrayList<>();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) {
@@ -76,9 +78,9 @@ public class Main {
                 long executionTime = (endTime - startTime) / 1000;
                 String currentTime = LocalDateTime.now().format(formatter);
 
-                Result resultObj = new Result(params.getX(), params.getY(), params.getR(),
+                Point pointObj = new Point(params.getX(), params.getY(), params.getR(),
                         currentTime, executionTime, result);
-                results.add(0, resultObj);
+                table.add(0, pointObj);
 
                 String json = buildResponseJson();
                 String response = String.format(HTTP_RESPONSE,
@@ -116,8 +118,8 @@ public class Main {
         json.append("{\n");
         json.append("  \"results\": [\n");
 
-        for (int i = 0; i < Math.min(results.size(), 10); i++) {
-            Result r = results.get(i);
+        for (int i = 0; i < Math.min(table.size(), 10); i++) {
+            Point r = table.get(i);
             json.append("    {\n");
             json.append("      \"x\": ").append(r.x).append(",\n");
             json.append("      \"y\": ").append(r.y).append(",\n");
@@ -125,40 +127,34 @@ public class Main {
             json.append("      \"currentTime\": \"").append(r.currentTime).append("\",\n");
             json.append("      \"executionTime\": ").append(r.executionTime).append(",\n");
             json.append("      \"hit\": ").append(r.hit).append("\n");
-            json.append(i < Math.min(results.size() - 1, 9) ? "    },\n" : "    }\n");
-        }
+            json.append(i < Math.min(table.size() - 1, 9) ? "    },\n" : "    }\n");
+        }//TODO: to Gson
 
         json.append("  ]\n");
         json.append("}");
         return json.toString();
     }
 
-    private static boolean calculate(float x, float y, float r) {
-        if (x >= 0 && y >= 0) {
-            return x <= r && y <= r;
+    private static boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
+        BigDecimal zero = BigDecimal.ZERO;
+
+        if (x.compareTo(zero) > 0 && y.compareTo(zero) > 0) {
+            return x.compareTo(r) <= 0 && y.compareTo(r) <= 0;
         }
-        if (x <= 0 && y <= 0) {
-            return (x * x + y * y) <= (r * r);
+
+        if (x.compareTo(zero) <= 0 && y.compareTo(zero) <= 0) {
+            BigDecimal x2 = x.multiply(x);
+            BigDecimal y2 = y.multiply(y);
+            BigDecimal r2 = r.multiply(r);
+            return x2.add(y2).compareTo(r2) <= 0;
         }
-        if (x <= 0 && y >= 0) {
-            return y <= 2 * x + r;
+
+        if (x.compareTo(zero) <= 0 && y.compareTo(zero) >= 0) {
+            BigDecimal twoX = x.multiply(BigDecimal.valueOf(2));
+            BigDecimal expr = twoX.add(r);
+            return y.compareTo(expr) <= 0;
         }
+
         return false;
-    }
-
-    static class Result {
-        float x, y, r;
-        String currentTime;
-        long executionTime;
-        boolean hit;
-
-        Result(float x, float y, float r, String currentTime, long executionTime, boolean hit) {
-            this.x = x;
-            this.y = y;
-            this.r = r;
-            this.currentTime = currentTime;
-            this.executionTime = executionTime;
-            this.hit = hit;
-        }
     }
 }
