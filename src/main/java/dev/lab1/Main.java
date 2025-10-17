@@ -1,11 +1,13 @@
 package dev.lab1;
 
 import com.fastcgi.FCGIInterface;
+import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.math.BigDecimal;
 
@@ -35,6 +37,7 @@ public class Main {
 
     private static final List<Point> table = new CopyOnWriteArrayList<>();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final Gson gson = new Gson();
 
     public static void main(String[] args) {
         var fcgi = new FCGIInterface();
@@ -114,25 +117,8 @@ public class Main {
     }
 
     private static String buildResponseJson() {
-        StringBuilder json = new StringBuilder();
-        json.append("{\n");
-        json.append("  \"results\": [\n");
-
-        for (int i = 0; i < Math.min(table.size(), 10); i++) {
-            Point r = table.get(i);
-            json.append("    {\n");
-            json.append("      \"x\": ").append(r.x).append(",\n");
-            json.append("      \"y\": ").append(r.y).append(",\n");
-            json.append("      \"r\": ").append(r.r).append(",\n");
-            json.append("      \"currentTime\": \"").append(r.currentTime).append("\",\n");
-            json.append("      \"executionTime\": ").append(r.executionTime).append(",\n");
-            json.append("      \"hit\": ").append(r.hit).append("\n");
-            json.append(i < Math.min(table.size() - 1, 9) ? "    },\n" : "    }\n");
-        }//TODO: to Gson
-
-        json.append("  ]\n");
-        json.append("}");
-        return json.toString();
+        Map<String, Object> payload = Map.of("results", table);
+        return gson.toJson(payload);
     }
 
     private static boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
