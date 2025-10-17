@@ -364,8 +364,8 @@
           <td>${result.r}</td>
           <td>${result.currentTime}</td>
           <td>${result.executionTime}</td>
-          <td class="${result.hit ? 'highlight' : 'miss'}">
-            ${result.hit ? 'Попадание' : 'Промах'}
+          <td class="${result.isHit ? 'highlight' : 'miss'}">
+            ${result.isHit ? 'Попадание' : 'Промах'}
           </td>`;
             tbody.appendChild(row);
         });
